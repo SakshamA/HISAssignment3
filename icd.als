@@ -107,15 +107,16 @@ pred send_mode_on[s, s' : State] {
   s'.authorised_card = s.authorised_card and
   s'.last_action in SendModeOn and
   s'.last_action.who = m.source
+
 }
 
 // Models the action in which a valid ModeOn message is received by the
 // ICD from the authorised cardiologist, causing the ICD system's mode to change 
 // from Off to On and the message to be removed from the network
-// Precondition: network contains a ModeOn message from the authorised
-//		cardiologist              
-// Postcondition: network does not contain any messages, and the icd_mode and
-//		impulse_mode is in ModeOn
+// Precondition: Network contains a ModeOn message from the authorised
+//	                  cardiologist              
+// Postcondition: Network does not contain any messages, and the icd_mode and
+//		    impulse_mode is in ModeOn
 //                last_action in RecvModeOn and 
 //                last_action.who = the source of the ModeOn message
 //                and nothing else changes
@@ -129,14 +130,15 @@ pred recv_mode_on[s, s' : State] {
   s'.authorised_card = s.authorised_card and
   s'.last_action in  RecvModeOn and
   s'.last_action.who = s.network.source
+
 }
 
 // Models the action in which a valid ChangeSettingsRequest message is sent
-// on the network, from the authorised cardiologist, specifying the new quantity of 
+// on the network, from the authorised principal, specifying the new quantity of 
 // joules to deliver for ventrical fibrillation.
-// Precondition: none
-// Postcondition: network now contains a SendChangeSettings message from the authorised 
-//                cardiologist
+// Precondition: None
+// Postcondition: Network now contains a SendChangeSettings message from the authorised 
+//                	    cardiologist
 //                last_action in SendChangeSettings and
 //                last_action.who = the source of the ChangeSettingsMessage
 //                and nothing else changes
@@ -149,6 +151,7 @@ pred send_change_settings[s, s' : State] {
   s'.authorised_card = s.authorised_card and
   s'.last_action in  SendChangeSettings and
   s'.last_action.who = m.source
+
 }
 
 // Models the action in which a valid ChangeSettingsRequest message is received
@@ -246,7 +249,7 @@ assert icd_never_off_after_on {
      s.icd_mode = ModeOn implies s'.icd_mode = ModeOn
 }
 
-//check icd_never_off_after_on for 10 expect 0
+check icd_never_off_after_on for 10 expect 0
 
 
 
@@ -271,7 +274,7 @@ assert inv_always {
 
 // Check that the invariant is never violated during 15
 // state transitions
-//check inv_always for 10 expect 0
+check inv_always for 10 expect 0
 // This assertion holds because icd_mode and impulse_mode
 // are always changed to the same value in all actions  ----------------------------------
 
@@ -291,8 +294,10 @@ assert unexplained_assertion {
       Patient not in s.last_action.who.roles
 }
 
-check unexplained_assertion for 4
-// <FILL IN HERE: does the assertion hold? why / why not?>
+check unexplained_assertion for 5
+// unexplained_assertion does not hold as the message source is not set to any default
+// value due and there is no precondition in SendModeOn and SendChangeSetting 
+//predicates due to which it can take Patient as message source.
 
 // Check that the device turns on only after properly instructed to
 // i.e. that the SendModeOn action occurs only after a RecvModeOn action has occurred
